@@ -1,8 +1,12 @@
+import logging
 from typing import Annotated
 
 import typer
 
 from icefy import ICE, Task
+from icefy.helpers import comma_to_dot, setup_logging
+
+logger = logging.getLogger(__name__)
 
 
 app = typer.Typer()
@@ -10,14 +14,12 @@ ice = ICE()
 
 @app.command()
 def init():
-    
     if ice.is_initialized():
-        print_warning(f"Warning: 'ice.json' already exists at '{ice.path.absolute()}'. Aborting...")
+        logger.warning(f"'ice.json' already exists at '{ice.path.absolute()}'. Aborting...")
+        return
     
-    else:
-        ice.create()
-        # ice_file.write_text(json.dumps({}, indent=4))  # Create empty JSON
-        print(f"Successfully initialized {ice.file_name} at '{ice.path.absolute()}'.")
+    ice.create_file()
+    logging.info(f"Successfully initialized {ice.file_name} at '{ice.path.absolute()}'.")
 
 @app.command()
 def add(
@@ -36,4 +38,5 @@ def add(
     )
 
 if __name__ == "__main__":
+    setup_logging()
     app()
