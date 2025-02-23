@@ -71,8 +71,13 @@ class ICE:
         data = self._read()
         tasks = dicts_to_tasks(data)
 
-        if sort_by and hasattr(Task, sort_by):
-            tasks.sort(key=lambda t: getattr(t, sort_by), reverse=descending)
+        if sort_by:
+            sort_key = lambda t: getattr(t, sort_by.value)
+        else:
+            sort_key = lambda t: t.count_score()
+            descending = not(descending)
+
+        tasks.sort(key=sort_key, reverse=descending)
 
         if limit is not None:
             tasks = tasks[:limit]

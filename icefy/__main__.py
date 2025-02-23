@@ -5,6 +5,7 @@ import typer
 
 from icefy import ICE, Task
 from icefy.helpers import comma_to_dot, setup_logging
+from icefy.task import TaskEnum
 
 logger = logging.getLogger(__name__)
 
@@ -36,6 +37,21 @@ def add(
             ease=ease  # type: ignore
         )
     )
+
+
+@app.command()
+def list(
+    limit: Annotated[int | None, typer.Option('-l', '--limit', help="How many tasks you want to retrieve")] = None,
+    sort_by: Annotated[TaskEnum | None, typer.Option('-s', "--sort", help=f"Column for sort. If not set, list sorts by ICE Score (descending). Allowed values: {", ".join([task.value for task in TaskEnum])}")] = None,
+    descending: bool = typer.Option(False, help="Sort in descending order", is_eager=True)
+):
+    tasks = ice.get_tasks(
+        sort_by=sort_by,
+        limit=limit,
+        descending=descending
+    )
+    logger.info("\n".join(str(task) for task in tasks))
+
 
 if __name__ == "__main__":
     setup_logging()
